@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamepad Display Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    #container {
+      background: #2a2a2a;
+      padding: 30px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    h1 {
+      margin: 0 0 10px 0;
+    }
+    .info {
+      color: #888;
+      font-size: 14px;
+    }
+    .connected {
+      color: #22c55e;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 20px;
+      width: 100%;
+      max-width: 400px;
+      align-items: center;
+    }
+    .controls label {
+      font-size: 14px;
+      color: #aaa;
+    }
+    .controls input[type="color"] {
+      width: 100%;
+      height: 36px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Gamepad Display</h1>
+    <p class="info">Connect a gamepad and press any button</p>
+    <p id="status" class="info"></p>
+    <div id="gamepad-container"></div>
+
+    <div class="controls">
+      <label for="primary-color">Primary Color:</label>
+      <input type="color" id="primary-color" value="#0d6efd">
+
+      <label for="outline-color">Button Outline:</label>
+      <input type="color" id="outline-color" value="#6c757d">
+
+      <label for="stick-color">Stick Base:</label>
+      <input type="color" id="stick-color" value="#dee2e6">
+
+      <label for="label-color">Button Labels:</label>
+      <input type="color" id="label-color" value="#6c757d">
+    </div>
+  </div>
+
+  <script type="module">
+    import { GamepadDisplay } from './src/index.ts';
+
+    const container = document.getElementById('gamepad-container');
+    const status = document.getElementById('status');
+    const display = new GamepadDisplay(container);
+
+    const primaryColorInput = document.getElementById('primary-color');
+    const outlineColorInput = document.getElementById('outline-color');
+    const stickColorInput = document.getElementById('stick-color');
+    const labelColorInput = document.getElementById('label-color');
+
+    primaryColorInput.addEventListener('input', (e) => {
+      display.setColors({ primary: e.target.value });
+    });
+
+    outlineColorInput.addEventListener('input', (e) => {
+      display.setColors({ buttonOutline: e.target.value });
+    });
+
+    stickColorInput.addEventListener('input', (e) => {
+      display.setColors({ stickBase: e.target.value });
+    });
+
+    labelColorInput.addEventListener('input', (e) => {
+      display.setColors({ buttonLabel: e.target.value });
+    });
+
+    let gamepadIndex = null;
+
+    window.addEventListener('gamepadconnected', (e) => {
+      gamepadIndex = e.gamepad.index;
+      status.textContent = `Connected: ${e.gamepad.id}`;
+      status.className = 'info connected';
+    });
+
+    window.addEventListener('gamepaddisconnected', () => {
+      gamepadIndex = null;
+      status.textContent = 'Gamepad disconnected';
+      status.className = 'info';
+    });
+
+    function updateGamepad() {
+      if (gamepadIndex !== null) {
+        const gamepads = navigator.getGamepads();
+        const gamepad = gamepads[gamepadIndex];
+
+        if (gamepad) {
+          const axes = Array.from(gamepad.axes);
+          const buttons = gamepad.buttons.map(b => b.value);
+          display.update(axes, buttons);
+        }
+      }
+      requestAnimationFrame(updateGamepad);
+    }
+
+    updateGamepad();
+  </script>
+</body>
+</html>
