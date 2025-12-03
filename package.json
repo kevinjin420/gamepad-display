@@ -1,6 +1,6 @@
 {
   "name": "gamepad-display",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Framework-agnostic gamepad display visualization",
   "type": "module",
   "main": "./dist/gamepad-display.umd.cjs",
@@ -39,6 +39,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kevinjin/gamepad-display.git"
+    "url": "https://github.com/kevinjin420/gamepad-display.git"
   }
 }
