@@ -7,12 +7,58 @@ export interface GamepadDisplayColors {
   buttonLabel?: string;
 }
 
+export interface LayoutOrigins {
+  bumpersTriggers: { x: number; y: number };
+  centerButtons: { x: number; y: number };
+  leftStick: { x: number; y: number };
+  dpad: { x: number; y: number };
+  faceButtons: { x: number; y: number };
+  rightStick: { x: number; y: number };
+}
+
+export interface GamepadLayout {
+  name: string;
+  width: number;
+  height: number;
+  origins: LayoutOrigins;
+}
+
+export const layouts: Record<string, GamepadLayout> = {
+  default: {
+    name: 'default',
+    width: 225,
+    height: 120,
+    origins: {
+      bumpersTriggers: { x: 65, y: 15 },
+      centerButtons: { x: 95, y: 60 },
+      leftStick: { x: 30, y: 30 },
+      dpad: { x: 8, y: 60 },
+      faceButtons: { x: 175, y: 14 },
+      rightStick: { x: 194, y: 88 }
+    }
+  },
+  horizontal: {
+    name: 'horizontal',
+    width: 333,
+    height: 60,
+    origins: {
+      leftStick: { x: 30, y: 30 },
+      dpad: { x: 60, y: 10 },
+      bumpersTriggers: { x: 115, y: 5 },
+      centerButtons: { x: 145, y: 50 },
+      rightStick: { x: 240, y: 30 },
+      faceButtons: { x: 280, y: 12 },
+    }
+  }
+};
+
 export interface GamepadDisplayOptions {
   width?: number;
   height?: number;
   primaryColor?: string;
   colors?: GamepadDisplayColors;
   autoInjectStyles?: boolean;
+  layout?: GamepadLayout | keyof typeof layouts;
 }
 
 export interface ResolvedColors {
@@ -26,23 +72,33 @@ export class GamepadDisplay {
   private container: HTMLElement;
   private svg: SVGSVGElement;
   private elements: Map<string, SVGElement> = new Map();
-  private options: Required<Omit<GamepadDisplayOptions, 'colors' | 'primaryColor'>>;
+  private options: { autoInjectStyles: boolean };
   private colors: ResolvedColors;
+  private layout: GamepadLayout;
 
-  private readonly origins = {
-    bumpersTriggers: { x: 65, y: 15 },
-    centerButtons: { x: 95, y: 60 },
-    leftStick: { x: 30, y: 30 },
-    dpad: { x: 8, y: 60 },
-    faceButtons: { x: 175, y: 14 },
-    rightStick: { x: 194, y: 88 }
-  };
+  private get origins(): LayoutOrigins {
+    return this.layout.origins;
+  }
 
   constructor(container: HTMLElement, options: GamepadDisplayOptions = {}) {
     this.container = container;
+
+    if (options.layout) {
+      this.layout = typeof options.layout === 'string'
+        ? layouts[options.layout] ?? layouts.default
+        : options.layout;
+    } else {
+      this.layout = layouts.default;
+    }
+
+    if (options.width !== undefined) {
+      this.layout = { ...this.layout, width: options.width };
+    }
+    if (options.height !== undefined) {
+      this.layout = { ...this.layout, height: options.height };
+    }
+
     this.options = {
-      width: options.width ?? 225,
-      height: options.height ?? 120,
       autoInjectStyles: options.autoInjectStyles ?? true
     };
 
@@ -64,11 +120,8 @@ export class GamepadDisplay {
 
   private createSVG(): SVGSVGElement {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', `0 0 ${this.options.width} ${this.options.height}`);
+    svg.setAttribute('viewBox', `0 0 ${this.layout.width} ${this.layout.height}`);
     svg.classList.add('gamepad-svg');
-    svg.style.width = '100%';
-    svg.style.maxWidth = '235px';
-    svg.style.height = 'auto';
 
     this.createBumpersTriggers(svg);
     this.createLeftStick(svg);
@@ -320,6 +373,10 @@ export class GamepadDisplay {
 
   public getColors(): ResolvedColors {
     return { ...this.colors };
+  }
+
+  public getLayout(): GamepadLayout {
+    return { ...this.layout, origins: { ...this.layout.origins } };
   }
 }
 

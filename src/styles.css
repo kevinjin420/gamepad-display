@@ -3,6 +3,8 @@
   --button-outline: #6c757d;
   --stick-base: #dee2e6;
   --button-label: #6c757d;
+  width: 100%;
+  height: auto;
 }
 
 .button-outline {
