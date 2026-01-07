@@ -1,6 +1,6 @@
 {
   "name": "gamepad-display",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Framework-agnostic gamepad display visualization",
   "type": "module",
   "main": "./dist/gamepad-display.umd.cjs",
