@@ -32,9 +32,10 @@ update();
 ### `new GamepadDisplay(container, options?)`
 
 **Options:**
+- `layout` - Layout preset name (`'default'` or `'horizontal'`) or custom `GamepadLayout` object
 - `primaryColor` - Color for pressed buttons (default: `'#0d6efd'`)
 - `colors` - Fine-grained color control: `primary`, `buttonOutline`, `stickBase`, `buttonLabel`
-- `width`, `height` - SVG viewBox dimensions (default: 225×120)
+- `width`, `height` - Override SVG viewBox dimensions
 - `autoInjectStyles` - Auto-inject CSS (default: `true`)
 
 ### Methods
@@ -47,7 +48,48 @@ update();
 
 **`getColors()`** - Get current color configuration
 
+**`getLayout()`** - Get current layout configuration
+
 **`destroy()`** - Clean up resources
+
+## Layouts
+
+Two built-in layouts are available:
+
+- `'default'` - Standard Xbox-style controller layout (225x120)
+- `'horizontal'` - Single-row compact layout, optimized for minimal vertical height (333x60)
+
+```javascript
+// Default layout
+const display = new GamepadDisplay(container);
+
+// Horizontal layout
+const display = new GamepadDisplay(container, { layout: 'horizontal' });
+```
+
+### Custom Layouts
+
+Create a custom layout by defining origins for each component group:
+
+```javascript
+import { GamepadDisplay, layouts } from 'gamepad-display';
+
+const customLayout = {
+  name: 'custom',
+  width: 400,
+  height: 100,
+  origins: {
+    leftStick: { x: 40, y: 50 },
+    dpad: { x: 80, y: 30 },
+    bumpersTriggers: { x: 150, y: 10 },
+    centerButtons: { x: 180, y: 60 },
+    faceButtons: { x: 300, y: 30 },
+    rightStick: { x: 360, y: 50 }
+  }
+};
+
+const display = new GamepadDisplay(container, { layout: customLayout });
+```
 
 ### Examples
 
